@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/yousifsabah0/snippetsbox/pkg/database"
 )
 
 type Application struct {
@@ -15,12 +17,19 @@ type Application struct {
 func main() {
 	// Parse command line flags
 	addr := flag.String("addr", ":8080", "HTTP network port")
+	dsn := flag.String("dsr", "stark:1538@/snippetsbox?parseTime=true", "Database source name")
 
 	flag.Parse()
 
 	// Create custom loggers
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ltime|log.Ldate)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Llongfile|log.Ldate)
+
+	// Connect to database
+	_, err := database.Open(*dsn)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
 
 	app := &Application{
 		InfoLogger:  infoLog,
