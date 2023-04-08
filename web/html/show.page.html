@@ -7,8 +7,8 @@
   </div>
   <pre><code>{{.Snippet.Content}}</code></pre>
   <div class="metadata">
-    <time>Last Update: {{.Snippet.UpdatedAt}}</time>
-    <time>Expires: {{.Snippet.Expires}}</time>
+    <time>Last Update: {{NormalizeDate .Snippet.UpdatedAt}}</time>
+    <time>Expires: {{NormalizeDate .Snippet.Expires}}</time>
   </div>
 </div>
 {{end}}

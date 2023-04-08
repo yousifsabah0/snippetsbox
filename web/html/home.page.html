@@ -10,7 +10,7 @@
   {{range .Snippets}}
   <tr>
     <td><a href="/snippets?id={{.ID}}">{{.Title}}</a></td>
-    <td>{{.CreatedAt}}</td>
+    <td>{{NormalizeDate .CreatedAt}}</td>
     <td>#{{.ID}}</td>
   </tr>
   {{end}}
