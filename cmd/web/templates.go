@@ -6,10 +6,12 @@ import (
 	"time"
 
 	"github.com/yousifsabah0/snippetsbox/pkg/database/models"
+	"github.com/yousifsabah0/snippetsbox/pkg/validators"
 )
 
 type TemplateData struct {
 	CurrentYear int
+	Form        *validators.Form
 	Snippets    []*models.Snippet
 	Snippet     *models.Snippet
 }

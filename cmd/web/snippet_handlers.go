@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/yousifsabah0/snippetsbox/pkg/validators"
 )
 
 const (
@@ -17,11 +19,6 @@ const (
 )
 
 func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-
 	snippets, err := app.Snippets.Latest()
 	if err != nil {
 		app.ServerError(w, err)
@@ -34,7 +31,7 @@ func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
 	if err != nil {
 		app.NotFoundError(w)
 		return
@@ -54,22 +51,27 @@ func (app *Application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (app *Application) CreateSnippetForm(w http.ResponseWriter, r *http.Request) {
+	app.Render(w, r, "create.page.html", &TemplateData{
+		Form: validators.New(nil),
+	})
+}
+
 func (app *Application) CreateSnippet(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		app.ClientError(w, http.StatusMethodNotAllowed)
-		return
+	if err := r.ParseForm(); err != nil {
+		app.ClientError(w, http.StatusBadRequest)
 	}
 
-	title := "O snail"
-	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
-	expires := "7"
+	form := validators.New(r.Form)
+	form.Required("title", "content", "expires")
+	form.Length("title", 100)
+	form.PermittedValues("expires", "365", "6", "1")
 
-	id, err := app.Snippets.Insert(title, content, expires)
+	id, err := app.Snippets.Insert(form.Get("title"), form.Get("content"), form.Get("expires"))
 	if err != nil {
 		app.ServerError(w, err)
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/snippets?id=%d", id), http.StatusPermanentRedirect)
+	http.Redirect(w, r, fmt.Sprintf("/snippets/%d", id), http.StatusPermanentRedirect)
 }
