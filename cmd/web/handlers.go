@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -45,7 +47,16 @@ func (app *Application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Dispaly a specific snippet with id %d!", id)
+	snippet, err := app.Snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			app.NotFoundError(w)
+		} else {
+			app.ServerError(w, err)
+		}
+	}
+
+	fmt.Fprintf(w, "%v", snippet)
 }
 
 func (app *Application) CreateSnippet(w http.ResponseWriter, r *http.Request) {
@@ -54,5 +65,16 @@ func (app *Application) CreateSnippet(w http.ResponseWriter, r *http.Request) {
 		app.ClientError(w, http.StatusMethodNotAllowed)
 		return
 	}
-	w.Write([]byte("New snippet is created!"))
+
+	title := "O snail"
+	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
+	expires := "7"
+
+	id, err := app.Snippets.Insert(title, content, expires)
+	if err != nil {
+		app.ServerError(w, err)
+		return
+	}
+
+	http.Redirect(w, r, fmt.Sprintf("/snippets?id=%d", id), http.StatusPermanentRedirect)
 }

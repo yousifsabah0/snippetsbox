@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/yousifsabah0/snippetsbox/pkg/database/models"
 )
@@ -26,11 +27,15 @@ func (m *SnippetModel) Insert(title, content, expires string) (int, error) {
 }
 
 func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
-	var snippet *models.Snippet
-	query := "SELECT title, content, expires, updated_at FROM snippets WHERE id = ?"
+	snippet := &models.Snippet{}
+	query := "SELECT title, content, expires, updated_at FROM snippets WHERE expires > UTC_TIMESTAMP() AND id = ?"
 
 	row := m.Db.QueryRow(query, id)
 	if err := row.Scan(&snippet.Title, &snippet.Content, &snippet.Expires, &snippet.UpdatedAt); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		}
+
 		return nil, err
 	}
 
