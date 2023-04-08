@@ -26,10 +26,11 @@ func main() {
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Llongfile|log.Ldate)
 
 	// Connect to database
-	_, err := database.Open(*dsn)
+	db, err := database.Open(*dsn)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
+	defer db.Close()
 
 	app := &Application{
 		InfoLogger:  infoLog,
