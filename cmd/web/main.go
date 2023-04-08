@@ -7,11 +7,13 @@ import (
 	"os"
 
 	"github.com/yousifsabah0/snippetsbox/pkg/database"
+	"github.com/yousifsabah0/snippetsbox/pkg/database/models/mysql"
 )
 
 type Application struct {
 	InfoLogger  *log.Logger
 	ErrorLogger *log.Logger
+	Snippets    *mysql.SnippetModel
 }
 
 func main() {
@@ -35,6 +37,7 @@ func main() {
 	app := &Application{
 		InfoLogger:  infoLog,
 		ErrorLogger: errorLog,
+		Snippets:    &mysql.SnippetModel{Db: db},
 	}
 
 	// Create & Start the web server
