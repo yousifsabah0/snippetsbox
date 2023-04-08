@@ -43,13 +43,15 @@ func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
 }
 
 func (m *SnippetModel) Latest() ([]*models.Snippet, error) {
-	var snippets []*models.Snippet
-	query := "SELECT * FROM snippets LIMIT 10"
+	snippets := []*models.Snippet{}
+	query := "SELECT * FROM snippets WHERE expires > UTC_TIMESTAMP() ORDER BY created_at DESC LIMIT 10"
 
 	rows, err := m.Db.Query(query)
 	if err != nil {
 		return nil, err
 	}
+
+	defer rows.Close()
 
 	for rows.Next() {
 		var snippet *models.Snippet
@@ -58,6 +60,10 @@ func (m *SnippetModel) Latest() ([]*models.Snippet, error) {
 		}
 
 		snippets = append(snippets, snippet)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return snippets, nil
