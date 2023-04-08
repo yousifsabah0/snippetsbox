@@ -14,10 +14,10 @@ type TemplateData struct {
 
 type TemplateCache map[string]*template.Template
 
-func NewTemplateCache(directory string) (TemplateCache, error) {
+func NewTemplateCache(dir string) (TemplateCache, error) {
 	cache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob(filepath.Join(directory, "*.page.html"))
+	pages, err := filepath.Glob(filepath.Join(dir, "*.page.html"))
 	if err != nil {
 		return nil, err
 	}
@@ -25,23 +25,22 @@ func NewTemplateCache(directory string) (TemplateCache, error) {
 	for _, page := range pages {
 		name := filepath.Base(page)
 
-		ts, err := template.ParseFiles(name)
+		ts, err := template.ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}
 
-		ts, err = template.ParseGlob(filepath.Join(directory, "*.layout.html"))
+		ts, err = ts.ParseGlob(filepath.Join(dir, "*.layout.html"))
 		if err != nil {
 			return nil, err
 		}
 
-		ts, err = template.ParseGlob(filepath.Join(directory, "*.partial.html"))
+		ts, err = ts.ParseGlob(filepath.Join(dir, "*.partial.html"))
 		if err != nil {
 			return nil, err
 		}
 
 		cache[name] = ts
 	}
-
 	return cache, nil
 }
