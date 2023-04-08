@@ -4,14 +4,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strconv"
 )
 
 const (
 	BaseTemplateFile string = "./web/html/base.layout.html"
-	HomeTemplateFile string = "./web/html/home.page.html"
+	HomeTemplateFile string = "./web/html/pages/home.page.html"
+	ShowTemplateFile string = "./web/html/pages/show.page.html"
 
 	FooterPartialFile string = "./web/html/partials/footer.partial.html"
 )
@@ -22,22 +22,15 @@ func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		HomeTemplateFile,
-		BaseTemplateFile,
-		FooterPartialFile,
-	}
-
-	ts, err := template.ParseFiles(files...)
+	snippets, err := app.Snippets.Latest()
 	if err != nil {
 		app.ServerError(w, err)
 		return
 	}
 
-	err = ts.Execute(w, nil)
-	if err != nil {
-		app.ServerError(w, err)
-	}
+	app.Render(w, r, "home.page.html", &TemplateData{
+		Snippets: snippets,
+	})
 }
 
 func (app *Application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +49,9 @@ func (app *Application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Fprintf(w, "%v", snippet)
+	app.Render(w, r, "show.page.html", &TemplateData{
+		Snippet: snippet,
+	})
 }
 
 func (app *Application) CreateSnippet(w http.ResponseWriter, r *http.Request) {

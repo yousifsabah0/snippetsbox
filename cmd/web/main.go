@@ -11,9 +11,10 @@ import (
 )
 
 type Application struct {
-	InfoLogger  *log.Logger
-	ErrorLogger *log.Logger
-	Snippets    *mysql.SnippetModel
+	InfoLogger    *log.Logger
+	ErrorLogger   *log.Logger
+	Snippets      *mysql.SnippetModel
+	TemplateCache TemplateCache
 }
 
 func main() {
@@ -34,10 +35,17 @@ func main() {
 	}
 	defer db.Close()
 
+	// Template caching
+	tc, err := NewTemplateCache("./web/html/")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	app := &Application{
-		InfoLogger:  infoLog,
-		ErrorLogger: errorLog,
-		Snippets:    &mysql.SnippetModel{Db: db},
+		InfoLogger:    infoLog,
+		ErrorLogger:   errorLog,
+		Snippets:      &mysql.SnippetModel{Db: db},
+		TemplateCache: tc,
 	}
 
 	// Create & Start the web server

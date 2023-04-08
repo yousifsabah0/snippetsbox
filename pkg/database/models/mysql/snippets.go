@@ -28,10 +28,10 @@ func (m *SnippetModel) Insert(title, content, expires string) (int, error) {
 
 func (m *SnippetModel) Get(id int) (*models.Snippet, error) {
 	snippet := &models.Snippet{}
-	query := "SELECT title, content, expires, updated_at FROM snippets WHERE expires > UTC_TIMESTAMP() AND id = ?"
+	query := "SELECT id, title, content, expires, updated_at FROM snippets WHERE expires > UTC_TIMESTAMP() AND id = ?"
 
 	row := m.Db.QueryRow(query, id)
-	if err := row.Scan(&snippet.Title, &snippet.Content, &snippet.Expires, &snippet.UpdatedAt); err != nil {
+	if err := row.Scan(&snippet.ID, &snippet.Title, &snippet.Content, &snippet.Expires, &snippet.UpdatedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrNoRecord
 		}
@@ -54,7 +54,7 @@ func (m *SnippetModel) Latest() ([]*models.Snippet, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var snippet *models.Snippet
+		snippet := &models.Snippet{}
 		if err := rows.Scan(&snippet.ID, &snippet.Title, &snippet.Content, &snippet.Expires, &snippet.CreatedAt, &snippet.UpdatedAt); err != nil {
 			return nil, err
 		}
