@@ -5,7 +5,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/golangcollege/sessions"
 	"github.com/yousifsabah0/snippetsbox/pkg/database"
 	"github.com/yousifsabah0/snippetsbox/pkg/database/models/mysql"
 )
@@ -15,12 +17,14 @@ type Application struct {
 	ErrorLogger   *log.Logger
 	Snippets      *mysql.SnippetModel
 	TemplateCache TemplateCache
+	Session       *sessions.Session
 }
 
 func main() {
 	// Parse command line flags
 	addr := flag.String("addr", ":8080", "HTTP network port")
 	dsn := flag.String("dsr", "stark:1538@/snippetsbox?parseTime=true", "Database source name")
+	secret := flag.String("session", "1937193nahda", "Session secret ket")
 
 	flag.Parse()
 
@@ -41,11 +45,16 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	// Set up session
+	session := sessions.New([]byte(*secret))
+	session.Lifetime = 12 * time.Hour
+
 	app := &Application{
 		InfoLogger:    infoLog,
 		ErrorLogger:   errorLog,
 		Snippets:      &mysql.SnippetModel{Db: db},
 		TemplateCache: tc,
+		Session:       session,
 	}
 
 	// Create & Start the web server

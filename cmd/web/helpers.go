@@ -13,6 +13,7 @@ func (app *Application) AddDefaultData(td *TemplateData, r *http.Request) *Templ
 	}
 
 	td.CurrentYear = time.Now().Year()
+	td.Flash = app.Session.PopString(r, "flash")
 	return td
 }
 

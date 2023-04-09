@@ -11,6 +11,7 @@ import (
 
 type TemplateData struct {
 	CurrentYear int
+	Flash       string
 	Form        *validators.Form
 	Snippets    []*models.Snippet
 	Snippet     *models.Snippet
