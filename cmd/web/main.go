@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"flag"
 	"log"
 	"net/http"
@@ -57,15 +58,24 @@ func main() {
 		Session:       session,
 	}
 
+	tlsConfig := &tls.Config{
+		PreferServerCipherSuites: true,
+		CurvePreferences:         []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
+
 	// Create & Start the web server
 	server := &http.Server{
-		Addr:     *addr,
-		ErrorLog: errorLog,
-		Handler:  app.Routes(),
+		Addr:         *addr,
+		ErrorLog:     errorLog,
+		Handler:      app.Routes(),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	infoLog.Printf("up and running.. port: %s", *addr)
-	if err := server.ListenAndServe(); err != nil {
+	if err := server.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem"); err != nil {
 		errorLog.Fatal(err)
 	}
 }
