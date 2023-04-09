@@ -24,7 +24,7 @@ func (app *Application) Routes() http.Handler {
 
 	// Serve static files, e.g (stylesheets, javascript, and images)
 	fileserver := http.FileServer(http.Dir("./web/static/"))
-	mux.Handle("/static/", http.StripPrefix("/static/", fileserver))
+	mux.Get("/static/", http.StripPrefix("/static/", fileserver))
 
 	return middlewares.Then(mux)
 }
