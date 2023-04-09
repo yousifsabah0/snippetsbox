@@ -67,11 +67,18 @@ func (app *Application) CreateSnippet(w http.ResponseWriter, r *http.Request) {
 	form.Length("title", 100)
 	form.PermittedValues("expires", "365", "6", "1")
 
+	if !form.Valid() {
+		app.Render(w, r, "create.page.html", &TemplateData{
+			Form: form,
+		})
+		return
+	}
+
 	id, err := app.Snippets.Insert(form.Get("title"), form.Get("content"), form.Get("expires"))
 	if err != nil {
 		app.ServerError(w, err)
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/snippets/%d", id), http.StatusPermanentRedirect)
+	http.Redirect(w, r, fmt.Sprintf("/snippets/%d", id), http.StatusSeeOther)
 }
