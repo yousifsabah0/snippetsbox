@@ -23,6 +23,12 @@ func (app *Application) Routes() http.Handler {
 
 	mux.Get("/snippets/:id", dynamicMiddlewares.ThenFunc(app.ShowSnippet))
 
+	mux.Get("/users/signup", dynamicMiddlewares.ThenFunc(app.SignupForm))
+	mux.Get("/users/login", dynamicMiddlewares.ThenFunc(app.LoginForm))
+
+	mux.Post("/users/signup", dynamicMiddlewares.ThenFunc(app.Signup))
+	mux.Post("/users/login", dynamicMiddlewares.ThenFunc(app.Login))
+
 	// Serve static files, e.g (stylesheets, javascript, and images)
 	fileserver := http.FileServer(http.Dir("./web/static/"))
 	mux.Get("/static/", http.StripPrefix("/static/", fileserver))
