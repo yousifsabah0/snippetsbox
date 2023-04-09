@@ -65,7 +65,7 @@ func (app *Application) CreateSnippet(w http.ResponseWriter, r *http.Request) {
 	form := validators.New(r.Form)
 	form.Required("title", "content", "expires")
 	form.Length("title", 100)
-	form.PermittedValues("expires", "365", "6", "1")
+	form.PermittedValues("expires", "365", "7", "1")
 
 	if !form.Valid() {
 		app.Render(w, r, "create.page.html", &TemplateData{
