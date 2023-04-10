@@ -20,7 +20,7 @@ func (app *Application) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	form := validators.New(r.Form)
+	form := validators.New(r.PostForm)
 	form.Required("name", "email", "password")
 	form.MatchPattern("email", validators.EmailRX)
 	form.MinLength("form", 8)
