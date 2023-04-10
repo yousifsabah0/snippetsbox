@@ -10,11 +10,13 @@ import (
 )
 
 type TemplateData struct {
-	CurrentYear int
-	Flash       string
-	Form        *validators.Form
-	Snippets    []*models.Snippet
-	Snippet     *models.Snippet
+	CurrentYear     int
+	Flash           string
+	Form            *validators.Form
+	IsAuthenticated bool
+	CSRFToken       string
+	Snippets        []*models.Snippet
+	Snippet         *models.Snippet
 }
 
 type TemplateCache map[string]*template.Template
