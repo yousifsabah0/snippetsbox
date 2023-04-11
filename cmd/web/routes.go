@@ -10,7 +10,7 @@ import (
 func (app *Application) Routes() http.Handler {
 
 	middlewares := alice.New(app.RevcoverPanic, app.LogRequest, SecureHeaders)
-	dynamicMiddlewares := alice.New(app.Session.Enable, NoSurf)
+	dynamicMiddlewares := alice.New(app.Session.Enable, NoSurf, app.Authenticate)
 
 	// Initialize a new servemux
 	mux := pat.New()

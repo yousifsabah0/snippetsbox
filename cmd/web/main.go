@@ -13,6 +13,12 @@ import (
 	"github.com/yousifsabah0/snippetsbox/pkg/database/models/mysql"
 )
 
+type ContextKey string
+
+const (
+	ContextKeyIsAuthenticated = ContextKey("IsAuthenticated")
+)
+
 type Application struct {
 	InfoLogger    *log.Logger
 	ErrorLogger   *log.Logger
