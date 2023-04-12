@@ -16,6 +16,8 @@ func (app *Application) Routes() http.Handler {
 	mux := pat.New()
 
 	// Register routes
+	mux.Get("/ping", http.HandlerFunc(Ping))
+
 	mux.Get("/", dynamicMiddlewares.Append(app.RequireAuthentication).ThenFunc(app.Home))
 
 	mux.Get("/snippets/new", dynamicMiddlewares.Append(app.RequireAuthentication).ThenFunc(app.CreateSnippetForm))
