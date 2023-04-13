@@ -1,0 +1,3 @@
+# Snippetsbox
+
+Go web application
