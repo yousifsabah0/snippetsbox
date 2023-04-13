@@ -6,12 +6,29 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	"github.com/golangcollege/sessions"
+	"github.com/yousifsabah0/snippetsbox/pkg/database/models/mocks"
 )
 
 func NewTestApplication(t *testing.T) *Application {
+	templateCache, err := NewTemplateCache("./../../ui/html/")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	session := sessions.New([]byte("1937193nahda"))
+	session.Lifetime = 12 * time.Hour
+	session.Secure = true
+
 	return &Application{
-		ErrorLogger: log.New(io.Discard, "", 0),
-		InfoLogger:  log.New(io.Discard, "", 0),
+		ErrorLogger:   log.New(io.Discard, "", 0),
+		InfoLogger:    log.New(io.Discard, "", 0),
+		Session:       session,
+		Snippets:      &mocks.SnippetModel{},
+		TemplateCache: templateCache,
+		Users:         &mocks.UserModel{},
 	}
 }
 

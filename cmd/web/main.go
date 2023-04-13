@@ -10,6 +10,7 @@ import (
 
 	"github.com/golangcollege/sessions"
 	"github.com/yousifsabah0/snippetsbox/pkg/database"
+	"github.com/yousifsabah0/snippetsbox/pkg/database/models"
 	"github.com/yousifsabah0/snippetsbox/pkg/database/models/mysql"
 )
 
@@ -20,10 +21,18 @@ const (
 )
 
 type Application struct {
-	InfoLogger    *log.Logger
-	ErrorLogger   *log.Logger
-	Snippets      *mysql.SnippetModel
-	Users         *mysql.UserModel
+	InfoLogger  *log.Logger
+	ErrorLogger *log.Logger
+	Snippets    interface {
+		Insert(title, content, expires string) (int, error)
+		Get(id int) (*models.Snippet, error)
+		Latest() ([]*models.Snippet, error)
+	}
+	Users interface {
+		Insert(name, email, password string) error
+		Authenticate(email, pass string) (int, error)
+		Get(id int) (*models.User, error)
+	}
 	TemplateCache TemplateCache
 	Session       *sessions.Session
 }
@@ -56,6 +65,7 @@ func main() {
 	// Set up session
 	session := sessions.New([]byte(*secret))
 	session.Lifetime = 12 * time.Hour
+	session.Secure = true
 
 	app := &Application{
 		InfoLogger:    infoLog,

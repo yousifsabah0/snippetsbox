@@ -17,7 +17,7 @@ var userMock = &models.User{
 
 type UserModel struct{}
 
-func (u *UserModel) Insert(email, password string) error {
+func (u *UserModel) Insert(name, email, password string) error {
 	switch email {
 	case "john2@doe.com":
 		return nil
