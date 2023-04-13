@@ -33,3 +33,11 @@ func (s *SnippetModel) Get(id int) (*models.Snippet, error) {
 func (s *SnippetModel) Latest() ([]*models.Snippet, error) {
 	return []*models.Snippet{mockSnippet}, nil
 }
+
+func (s *SnippetModel) Update(snippet *models.Snippet) (int, error) {
+	return 0, nil
+}
+
+func (s *SnippetModel) Delete(id int) error {
+	return nil
+}

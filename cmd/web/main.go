@@ -27,6 +27,8 @@ type Application struct {
 		Insert(title, content, expires string) (int, error)
 		Get(id int) (*models.Snippet, error)
 		Latest() ([]*models.Snippet, error)
+		Update(snippet *models.Snippet) (int, error)
+		Delete(id int) error
 	}
 	Users interface {
 		Insert(name, email, password string) error

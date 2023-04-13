@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/justinas/nosurf"
@@ -36,4 +37,8 @@ func (app *Application) Render(w http.ResponseWriter, r *http.Request, name stri
 	}
 
 	buf.WriteTo(w)
+}
+
+func GetIdFromURL(r *http.Request) (int, error) {
+	return strconv.Atoi(r.URL.Query().Get("id"))
 }

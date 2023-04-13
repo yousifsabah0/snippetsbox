@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 
+	"github.com/yousifsabah0/snippetsbox/pkg/database/models"
 	"github.com/yousifsabah0/snippetsbox/pkg/validators"
 )
 
@@ -31,7 +31,7 @@ func (app *Application) Home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) ShowSnippet(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(r.URL.Query().Get(":id"))
+	id, err := GetIdFromURL(r)
 	if err != nil {
 		app.NotFoundError(w)
 		return
@@ -83,4 +83,80 @@ func (app *Application) CreateSnippet(w http.ResponseWriter, r *http.Request) {
 	app.Session.Put(r, "flash", "New snippet created!")
 
 	http.Redirect(w, r, fmt.Sprintf("/snippets/%d", id), http.StatusSeeOther)
+}
+
+func (app *Application) UpdateSnippetForm(w http.ResponseWriter, r *http.Request) {
+	app.Render(w, r, "update.page.html", &TemplateData{
+		Form: validators.New(nil),
+	})
+}
+
+func (app *Application) UpdateSnippet(w http.ResponseWriter, r *http.Request) {
+	id, err := GetIdFromURL(r)
+	if err != nil {
+		app.NotFoundError(w)
+		return
+	}
+
+	_, err = app.Snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.NotFoundError(w)
+		} else {
+			app.ServerError(w, err)
+		}
+	}
+
+	if err := r.ParseForm(); err != nil {
+		app.ClientError(w, http.StatusBadRequest)
+	}
+
+	form := validators.New(r.PostForm)
+	form.Required("title", "content")
+	form.Length("title", 100)
+
+	if !form.Valid() {
+		app.Render(w, r, "update.page.html", &TemplateData{
+			Form: form,
+		})
+		return
+	}
+
+	updatedSnippet := &models.Snippet{
+		Title:   form.Get("title"),
+		Content: form.Get("content"),
+	}
+
+	s, err := app.Snippets.Update(updatedSnippet)
+	if err != nil {
+		app.ServerError(w, err)
+	}
+
+	app.Session.Put(r, "flash", "Snippet updated!")
+
+	http.Redirect(w, r, fmt.Sprintf("/snippets/%d", s), http.StatusSeeOther)
+}
+
+func (app *Application) DeleteSnippet(w http.ResponseWriter, r *http.Request) {
+	id, err := GetIdFromURL(r)
+	if err != nil {
+		app.NotFoundError(w)
+		return
+	}
+
+	snippet, err := app.Snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.NotFoundError(w)
+		} else {
+			app.ServerError(w, err)
+		}
+	}
+
+	if err := app.Snippets.Delete(id); err != nil {
+		app.ServerError(w, err)
+	}
+
+	app.Session.Put(r, "flash", fmt.Sprintf("Snippet with id #%d deleted!", snippet.ID))
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

@@ -68,3 +68,30 @@ func (m *SnippetModel) Latest() ([]*models.Snippet, error) {
 
 	return snippets, nil
 }
+
+func (m *SnippetModel) Update(snippet *models.Snippet) (int, error) {
+	query := "UPDATE snippets SET title = ?, content = ?, expires = ? WHERE id = ?"
+
+	result, err := m.Db.Exec(query, snippet.Title, snippet.Content, snippet.Expires, snippet.ID)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return int(id), nil
+}
+
+func (m *SnippetModel) Delete(id int) error {
+	query := "DELETE FROM snippets WHERE id = ?"
+
+	_, err := m.Db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

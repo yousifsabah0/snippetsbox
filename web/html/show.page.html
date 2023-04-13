@@ -10,5 +10,8 @@
     <time>Last Update: {{NormalizeDate .Snippet.UpdatedAt}}</time>
     <time>Expires: {{NormalizeDate .Snippet.Expires}}</time>
   </div>
+  <div class="metadata">
+    <a href="/snippets/edit/{{.Snippet.ID}}"></a>
+  </div>
 </div>
 {{end}}
